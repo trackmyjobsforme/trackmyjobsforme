@@ -1,0 +1,1 @@
+// stripe/checkout.ts placeholder

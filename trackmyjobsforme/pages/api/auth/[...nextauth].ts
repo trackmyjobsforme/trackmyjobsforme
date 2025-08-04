@@ -1,0 +1,1 @@
+// auth/[...nextauth].ts placeholder
