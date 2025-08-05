@@ -1,1 +1,0 @@
-// cover-letter.tsx placeholder

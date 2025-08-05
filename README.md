@@ -1,1 +1,2 @@
-// README.md placeholder
+# TrackMyJobsForMe
+Minimal working version ready for Vercel.

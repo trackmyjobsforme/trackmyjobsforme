@@ -1,1 +1,0 @@
-// CoverLetterGenerator.tsx placeholder
