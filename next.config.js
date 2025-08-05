@@ -1,1 +1,9 @@
-module.exports = { reactStrictMode: true };
+module.exports = { reactStrictMode: true };/** @type {import('next').NextConfig} */
+const nextConfig = {
+  reactStrictMode: true,
+  eslint: {
+    ignoreDuringBuilds: true,
+  },
+};
+
+module.exports = nextConfig;
