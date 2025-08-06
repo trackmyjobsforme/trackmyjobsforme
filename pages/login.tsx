@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
-import { supabase } from '@/lib/supabaseClient'
+import { supabase } from '../lib/supabaseClient'
 
 export default function Login() {
   const [email, setEmail] = useState('')
