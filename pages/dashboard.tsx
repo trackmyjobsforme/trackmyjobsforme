@@ -64,3 +64,58 @@ export default function Dashboard() {
         {/* Left Column - Search Results */}
         <div className="md:col-span-2 bg-white rounded-md shadow p-4">
           <div className="flex justify-between items-center mb-4">
+            <h2 className="text-xl font-bold">Search Results</h2>
+            <button
+              onClick={handleSearch}
+              className="bg-blue-600 text-white px-4 py-2 rounded-md"
+            >
+              Search
+            </button>
+          </div>
+          <ul>
+            {results.length === 0 && (
+              <p className="text-gray-500 italic">No search results yet.</p>
+            )}
+            {results.map((job) => (
+              <li
+                key={job.id}
+                className="border-b border-gray-200 py-2 text-gray-800"
+              >
+                <p className="font-medium">{job.title}</p>
+                <p className="text-sm text-gray-500">{job.location}</p>
+              </li>
+            ))}
+          </ul>
+        </div>
+
+        {/* Right Column - Tools */}
+        <div className="flex flex-col gap-4">
+          {/* Cover Letter Tool */}
+          <div className="bg-white rounded-md shadow p-4 flex-1">
+            <h3 className="text-lg font-semibold mb-2">Cover Letter Tool</h3>
+            <textarea
+              className="w-full h-40 p-2 border border-gray-300 rounded-md"
+              placeholder="Generate your cover letter here..."
+            />
+            <button className="mt-2 bg-green-600 text-white px-4 py-2 rounded-md">
+              Generate Cover Letter
+            </button>
+          </div>
+
+          {/* Resume Tool */}
+          <div className="bg-white rounded-md shadow p-4 flex-1">
+            <h3 className="text-lg font-semibold mb-2">Resume Tool</h3>
+            <input type="file" className="w-full mb-2" />
+            <textarea
+              className="w-full h-32 p-2 border border-gray-300 rounded-md"
+              placeholder="Paste or edit your resume here..."
+            />
+            <button className="mt-2 bg-purple-600 text-white px-4 py-2 rounded-md">
+              Save Resume
+            </button>
+          </div>
+        </div>
+      </div>
+    </div> // ✅ THIS LINE closes the root div correctly
+  )
+}
