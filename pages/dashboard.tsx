@@ -1,121 +1,176 @@
-import { useEffect, useState } from 'react'
-import { supabase } from '../lib/supabaseClient'
-import { useRouter } from 'next/router'
+import { useState } from 'react'
 
-type UserInfo = {
-  email: string
+type JobStage = 'Applied' | 'Screen' | 'Interview' | 'Offer'
+
+type Job = {
+  id: number
+  company: string
+  title: string
+  location: string
+  logo: string
+  stages: {
+    [key in JobStage]?: string
+  }
+  status: JobStage
+  notes: string
+  date: string
 }
 
 export default function Dashboard() {
-  const [user, setUser] = useState<UserInfo | null>(null)
-  const [searchQuery, setSearchQuery] = useState('')
-  const [results, setResults] = useState([])
+  const [jobs, setJobs] = useState<Job[]>([
+    {
+      id: 1,
+      company: 'AccuWeather',
+      title: 'Intern',
+      location: 'State College, PA, USA',
+      logo: '☀️',
+      stages: { Applied: '8/13/22' },
+      status: 'Applied',
+      notes: '',
+      date: '',
+    },
+    {
+      id: 2,
+      company: 'Meta',
+      title: 'Rotational Product Manager',
+      location: 'Seattle, WA, USA',
+      logo: '🌀',
+      stages: { Applied: '8/7/22', Screen: '08/07/22' },
+      status: 'Screen',
+      notes: 'Need to prepare for screening and follow up with recruiter!',
+      date: '7 August 2022',
+    },
+  ])
 
-  const router = useRouter()
+  const [expandedId, setExpandedId] = useState<number | null>(2)
 
-  useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        const { data, error } = await supabase.auth.getUser()
-
-        if (error || !data?.user?.email) {
-          // Use dev fallback
-          console.warn('Not logged in, using test user.')
-          setUser({ email: 'testuser@example.com' })
-        } else {
-          setUser({ email: data.user.email })
-        }
-      } catch (err) {
-        console.error('Error fetching user:', err)
-        setUser({ email: 'testuser@example.com' })
-      }
-    }
-
-    fetchUser()
-  }, [])
-
-  const handleSearch = () => {
-    // Replace with real search logic
-    setResults([
-      { id: 1, title: 'Frontend Developer - Google', location: 'Remote' },
-      { id: 2, title: 'React Engineer - Amazon', location: 'Boston, MA' },
-    ])
+  const handleUpdate = (id: number, updates: Partial<Job>) => {
+    setJobs((prev) =>
+      prev.map((job) => (job.id === id ? { ...job, ...updates } : job))
+    )
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4">
-      {/* Top Bar */}
-      <div className="flex justify-between items-center bg-white shadow p-4 rounded-md mb-4">
+    <div className="max-w-4xl mx-auto p-4 space-y-6">
+      {/* Top Filters */}
+      <div className="flex gap-2">
         <input
           type="text"
-          placeholder="Search for jobs..."
-          className="w-1/2 px-4 py-2 border border-gray-300 rounded-md"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
+          placeholder="Search for roles or companies"
+          className="flex-1 px-4 py-2 border rounded-md"
         />
-        <div className="text-sm text-gray-600 text-right">
-          <p className="font-semibold">{user?.email}</p>
-          <p className="text-xs">TrackMyJobsForMe</p>
-        </div>
+        <select className="px-3 py-2 border rounded-md">
+          <option>Job Type</option>
+        </select>
+        <select className="px-3 py-2 border rounded-md">
+          <option>Status</option>
+        </select>
       </div>
 
-      {/* Main Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Left Column - Search Results */}
-        <div className="md:col-span-2 bg-white rounded-md shadow p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-bold">Search Results</h2>
-            <button
-              onClick={handleSearch}
-              className="bg-blue-600 text-white px-4 py-2 rounded-md"
-            >
-              Search
-            </button>
-          </div>
-          <ul>
-            {results.length === 0 && (
-              <p className="text-gray-500 italic">No search results yet.</p>
-            )}
-            {results.map((job) => (
-              <li
-                key={job.id}
-                className="border-b border-gray-200 py-2 text-gray-800"
-              >
-                <p className="font-medium">{job.title}</p>
+      {/* Job Cards */}
+      {jobs.map((job) => {
+        const isOpen = job.id === expandedId
+        return (
+          <div
+            key={job.id}
+            className="bg-white rounded-md shadow p-4 border border-gray-200"
+          >
+            {/* Job Overview */}
+            <div className="flex justify-between items-center">
+              <div>
+                <div className="text-xl font-bold flex items-center gap-2">
+                  <span className="text-2xl">{job.logo}</span> {job.title}
+                </div>
+                <p className="text-gray-600">{job.company}</p>
                 <p className="text-sm text-gray-500">{job.location}</p>
-              </li>
-            ))}
-          </ul>
-        </div>
+              </div>
 
-        {/* Right Column - Tools */}
-        <div className="flex flex-col gap-4">
-          {/* Cover Letter Tool */}
-          <div className="bg-white rounded-md shadow p-4 flex-1">
-            <h3 className="text-lg font-semibold mb-2">Cover Letter Tool</h3>
-            <textarea
-              className="w-full h-40 p-2 border border-gray-300 rounded-md"
-              placeholder="Generate your cover letter here..."
-            />
-            <button className="mt-2 bg-green-600 text-white px-4 py-2 rounded-md">
-              Generate Cover Letter
-            </button>
-          </div>
+              {/* Timeline */}
+              <div className="flex items-center space-x-4">
+                {(['Applied', 'Screen', 'Interview', 'Offer'] as JobStage[]).map(
+                  (stage) => (
+                    <div key={stage} className="text-center">
+                      <div
+                        className={`h-3 w-3 rounded-full mx-auto ${
+                          job.stages[stage]
+                            ? 'bg-blue-600'
+                            : 'bg-gray-300 border border-gray-400'
+                        }`}
+                      ></div>
+                      <p className="text-xs mt-1">{job.stages[stage]}</p>
+                    </div>
+                  )
+                )}
+              </div>
 
-          {/* Resume Tool */}
-          <div className="bg-white rounded-md shadow p-4 flex-1">
-            <h3 className="text-lg font-semibold mb-2">Resume Tool</h3>
-            <input type="file" className="w-full mb-2" />
-            <textarea
-              className="w-full h-32 p-2 border border-gray-300 rounded-md"
-              placeholder="Paste or edit your resume here..."
-            />
-            <button className="mt-2 bg-purple-600 text-white px-4 py-2 rounded-md">
-              Save Resume
-            </button>
+              {/* Expand Button */}
+              <button
+                onClick={() =>
+                  setExpandedId((prev) => (prev === job.id ? null : job.id))
+                }
+              >
+                {isOpen ? '▲' : '▼'}
+              </button>
+            </div>
+
+            {/* Expanded Section */}
+            {isOpen && (
+              <div className="mt-4 border-t pt-4 grid grid-cols-1 sm:grid-cols-3 gap-4">
+                {/* Status Selector */}
+                <div>
+                  <label className="block text-sm font-medium">Application Status</label>
+                  <select
+                    value={job.status}
+                    onChange={(e) =>
+                      handleUpdate(job.id, { status: e.target.value as JobStage })
+                    }
+                    className="w-full border px-3 py-2 rounded-md"
+                  >
+                    {['Applied', 'Screen', 'Interview', 'Offer'].map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* Date */}
+                <div>
+                  <label className="block text-sm font-medium">Date</label>
+                  <input
+                    type="text"
+                    value={job.date}
+                    onChange={(e) => handleUpdate(job.id, { date: e.target.value })}
+                    className="w-full border px-3 py-2 rounded-md"
+                  />
+                </div>
+
+                {/* Notes */}
+                <div className="sm:col-span-3">
+                  <label className="block text-sm font-medium">Additional Notes</label>
+                  <textarea
+                    value={job.notes}
+                    onChange={(e) => handleUpdate(job.id, { notes: e.target.value })}
+                    className="w-full border px-3 py-2 rounded-md"
+                  />
+                </div>
+
+                {/* Buttons */}
+                <div className="flex gap-2 sm:col-span-3 mt-2">
+                  <button className="px-4 py-2 border rounded-md">Archive</button>
+                  <button className="px-4 py-2 border rounded-md">View Details</button>
+                  <button
+                    className="ml-auto bg-blue-600 text-white px-4 py-2 rounded-md"
+                    onClick={() => alert('Updated!')}
+                  >
+                    Update
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
-        </div>
-      </div>
-    </div> // ✅ THIS LINE closes the root div correctly
+        )
+      })}
+    </div>
   )
 }
